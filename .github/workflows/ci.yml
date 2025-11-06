@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+    
+    steps:
+    - name: checkout code
+      uses: actions/checkout@v4
+    
+    - name: build project
+      run: make all
+    
+    - name: run tests
+      run: make test
+    
+    - name: clean build
+      run: make clean
