@@ -85,5 +85,42 @@ int main() {
                digits, add_time, sub_time, mul_time, div_time);
     }
     
+    
+    printf("=======================================================\n");
+    
+    Mew a = from_hex("26210d961e7b8b6b8dc3a7504d8c59b0b4f5df0451fd4f7c2d7ff5a050e8f7e02c9b0f5a4aebf1b4c2c9f0a8e7f06c1d5f0d7f2a1b3c7e9d8a4b6c2d1e0f9a87b6c5d4e3f2b1a0c9d8e7f6a5b4c3d2e1f0ab12cd34ef56a7890bcdef1234567890abcdef0fedcba0987654321ff00ee11dd22cc33bb44aa5599887766554433221100aa55aa55cc33cc33");
+    
+    Mew b = from_hex("16ab41a3c4f0b7e2d9a8c7b6e5f4d3c2b1a0f9e8d7c6b5a4938271605f4e3d2c1b0a9f8e7d6c5b4a39281706f5e4d3c2b1a0f9e8d7c6b5a4938271605f4e3d2c1b0a9f8e7d6c5b4a39281706f5e4d3c2b1a0f9e8d7c6b5a4938271605f4e3d2c1b0a9f8e7d6c5b4a39281706f5e4d3c2b1a0f9e8d7c6b5a4938271605f4e3d2c1b0a9");
+    
+    Mew l = from_hex("b8f729c85e0d4b671f92c8a134e6d0f5b82a7c9e16d4b380c5f9a2e1374d6c891b0f2a5c8e3197d4b6a0283c5f9e174d6b0a2");
+    
+    Mew c = add(&a, &b);
+    Mew d = sub(&a, &b);
+    Mew e = mul(&a, &b);
+    Mew f = divm(&a, &b);
+    
+    Mew w1 = add_mod(&a, &b, &l);
+    Mew w2 = sub_mod(&a, &b, &l);
+    Mew w3 = mul_mod(&a, &b, &l);
+    //Mew w4 = add_mod(&a, &b, &l);
+    
+    
+    print_hex(&c);
+    printf("\n\n");
+    print_hex(&d);
+    printf("\n\n");
+    print_hex(&e);
+    printf("\n\n");
+    print_hex(&f);
+    printf("\n\n");
+    print_hex(&w1);
+    printf("\n\n");
+    print_hex(&w2);
+    printf("\n\n");
+    print_hex(&w3);
+    printf("\n\n");
+    //print_hex(&w4);
+    printf("\n\n");
+    
     return 0;
 }
