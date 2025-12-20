@@ -89,9 +89,11 @@ char *to_hex(const Mew *a) {
 Mew copy(const Mew *a) {
     Mew r = zero();
     memcpy(r.numberArray, a->numberArray, sizeof(a->numberArray));
+    r.negative = a->negative;
     r.chozabretto = a->chozabretto;
     return r;
 }
+
 
 bool is_zero(const Mew *a) {
     for (int i = 0; i < NUM_LEN; ++i)
@@ -216,15 +218,25 @@ Mew add(const Mew *a, const Mew *b) {
 
 Mew sub(const Mew *a, const Mew *b) {
     Mew r = zero();
-    if (cmp(a, b) < 0) {
-        r = sub(b, a);
-        return r; 
+
+    int c = cmp(a, b);
+    if (c == 0) {
+        return r;
+    }
+
+    const Mew *x = a;
+    const Mew *y = b;
+
+    if (c < 0) {
+        r.negative = true;
+        x = b;
+        y = a;
     }
 
     uint64_t borrow = 0;
     for (int i = 0; i < NUM_LEN; ++i) {
-        uint64_t ai = a->numberArray[i];
-        uint64_t bi = b->numberArray[i];
+        uint64_t ai = x->numberArray[i];
+        uint64_t bi = y->numberArray[i];
         uint64_t diff;
 
         if (ai >= bi + borrow) {
@@ -236,8 +248,12 @@ Mew sub(const Mew *a, const Mew *b) {
         }
         r.numberArray[i] = (uint32_t)diff;
     }
+
+    if (is_zero(&r)) r.negative = false;
+
     return r;
 }
+
 
 Mew mul_one(const Mew *a, uint32_t b) {
     Mew r = zero();
