@@ -1,6 +1,8 @@
 #include "mew.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+
 
 
 static Mew abs_mew(const Mew *a) {
@@ -218,4 +220,86 @@ Mew lcm(const Mew *a, const Mew *b) {
 
     Mew r = mul(&t, b);
     return r;
+}
+
+
+
+
+
+static Mew random_below(const Mew *n) {
+    Mew r = zero();
+    int bits = bit_len(n);
+
+    do {
+        for (int i = 0; i < NUM_LEN; ++i)
+            r.numberArray[i] =
+                ((uint32_t)rand() << 16) ^ (uint32_t)rand();
+
+        int excess = NUM_LEN * 32 - bits;
+        if (excess > 0) {
+            uint32_t mask = (bits % 32 == 0)
+                ? 0xFFFFFFFFu
+                : ((1u << (bits % 32)) - 1);
+            r.numberArray[bits / 32] &= mask;
+            for (int i = bits / 32 + 1; i < NUM_LEN; ++i)
+                r.numberArray[i] = 0;
+        }
+    } while (cmp(&r, n) >= 0 || is_zero(&r));
+
+    return r;
+}
+
+static Mew random_base(const Mew *n) {
+    Mew three = from_u32(3);
+    Mew nm3 = sub(n, &three);
+    Mew r = random_below(&nm3);
+    Mew two = from_u32(2);
+    return add(&r, &two);
+}
+
+bool miller_rabin(const Mew *n, int rounds) {
+    if (!n || n->chozabretto) return false;
+
+    Mew zero_m = zero();
+    Mew one  = from_u32(1);
+    Mew two  = from_u32(2);
+    Mew four = from_u32(4);
+
+    if (cmp(n, &two) < 0) return false;
+    if (cmp(n, &four) < 0) return true;
+    if (is_even(n)) return false;
+
+    Mew n_minus_1 = sub(n, &one);
+    Mew d = copy(&n_minus_1);
+    int s = 0;
+
+    while (is_even(&d)) {
+        d = shift_right(&d, 1);
+        s++;
+    }
+
+    for (int i = 0; i < rounds; ++i) {
+        Mew a = random_base(n);
+
+        Mew x = mod_pow_barrett(&a, &d, n);
+        if (x.chozabretto) return false;
+
+        if (cmp(&x, &one) == 0 || cmp(&x, &n_minus_1) == 0)
+            continue;
+
+        bool composite = true;
+        for (int r = 1; r < s; ++r) {
+            x = mod_square(&x, n);
+            if (x.chozabretto) return false;
+
+            if (cmp(&x, &n_minus_1) == 0) {
+                composite = false;
+                break;
+            }
+        }
+
+        if (composite) return false;
+    }
+
+    return true;
 }
